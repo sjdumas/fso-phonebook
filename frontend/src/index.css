@@ -1,0 +1,18 @@
+.message-notifications {
+	font-size: 20px;
+	padding: 10px;
+	border-style: solid;
+	border-radius: 5px;
+	margin-bottom: 10px;
+	background-color: lightgray;
+}
+
+.success {
+	color: green;
+	border-color: green;
+}
+
+.error {
+	color: red;
+	border-color: red;
+}
