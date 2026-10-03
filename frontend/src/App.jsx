@@ -43,7 +43,7 @@ const App = () => {
 					}, 5000)
 					setNewName("");
 					setNewPhoneNumber("");
-				}).catch(error => {
+				}).catch(() => {
 					showError(`Information of ${newName} has already been removed from server`);
 					setPersons(persons.filter(p => p.id !== existingPerson.id));
 				});
