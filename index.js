@@ -11,12 +11,16 @@ morgan.token("body", (request) => {
 });
 
 app.use(express.json());
-app.use(express.static("dist"));
+app.use(express.static("frontend/dist"));
 app.use(morgan(":method :url :status :res[content-length] - :response-time ms :body")); // Logs HTTP requests with custom body token
 app.use(cors());
 
 app.get("/", (request, response) => {
     response.send("<h1>Phonebook</h1>");
+});
+
+app.get("/health", (request, response) => {
+    response.send("ok");
 });
 
 app.get("/api/persons", (request, response) => {
