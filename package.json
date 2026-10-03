@@ -9,7 +9,7 @@
     "lint": "eslint .",
     "build:ui": "npm --prefix frontend ci && npm --prefix frontend run build",
     "lint:ui": "npm --prefix frontend run lint",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "node --test"
 },
   "repository": {
     "type": "git",
