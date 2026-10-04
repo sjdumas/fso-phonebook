@@ -1,6 +1,6 @@
 # Full Stack Open Phonebook
 
-This repository contains the full-stack phonebook application for exercise 21, **“Your own pipeline,”** in the CI/CD section of the University of Helsinki’s [Full Stack Open](https://fullstackopen.com/en/) course.
+This repository contains the full-stack phonebook application for exercise 21, **“Your own pipeline,”** in the CI/CD section [(part 11)](https://fullstackopen.com/en/part11) of the University of Helsinki’s [Full Stack Open](https://fullstackopen.com/en/) course.
 
 The exercise involves building a CI/CD pipeline for an application. This repository brings the phonebook frontend and backend together: the backend is at the repository root, and the React frontend is in `frontend/`.
 
