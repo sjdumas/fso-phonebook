@@ -14,7 +14,7 @@ This is the companion application repository for the exercise; link to it from t
 
 The API supports creating, listing, updating, and deleting phonebook entries. The frontend uses the API to manage contacts.
 
-The backend is deployed at [Phonebook Backend](https://phonebook-backend-r69q.onrender.com/).
+The live application is available at [Phonebook](https://fso-phonebook-ci-cd.onrender.com/).
 
 ## Repository layout
 
