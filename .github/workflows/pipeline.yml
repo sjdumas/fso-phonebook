@@ -62,6 +62,7 @@ jobs:
         run: npm run build:ui
       - name: Check build output exists
         run: test -f frontend/dist/index.html
+        
   deploy:
     needs: [lint, lint_ui, test, build]
     if: ${{ github.event_name == 'push' && !contains(join(github.event.commits.*.message, ' '), '#skip') }}
@@ -69,6 +70,7 @@ jobs:
     steps:
       - name: Trigger Render deployment
         run: curl --fail --silent --show-error -X POST "${{ secrets.RENDER_DEPLOY_HOOK }}"
+
   tag_release:
     needs: deploy
     runs-on: ubuntu-latest
@@ -82,4 +84,4 @@ jobs:
         uses: anothrNick/github-tag-action@1.75.0
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-                DEFAULT_BUMP: patch
+          DEFAULT_BUMP: patch
