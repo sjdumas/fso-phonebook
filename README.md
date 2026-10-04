@@ -106,4 +106,3 @@ Create and update requests use JSON with a `name` and `number`, for example:
 ```
 
 Names are required and must be at least three characters. Phone numbers are required and must contain a two- or three-digit prefix, a hyphen, and digits; the complete number must be at least eight characters long.
-Testing the skip feature
