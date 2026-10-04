@@ -62,7 +62,7 @@ jobs:
         run: npm run build:ui
       - name: Check build output exists
         run: test -f frontend/dist/index.html
-        
+
   deploy:
     needs: [lint, lint_ui, test, build]
     if: ${{ github.event_name == 'push' && !contains(join(github.event.commits.*.message, ' '), '#skip') }}
@@ -85,3 +85,35 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           DEFAULT_BUMP: patch
+
+  notify_failure:
+    needs: [lint, lint_ui, test, build, deploy]
+    if: failure()
+    runs-on: ubuntu-latest
+    steps:
+      - name: Notify Discord on failure
+        uses: sarisia/actions-status-discord@v1
+        with:
+          webhook: ${{ secrets.DISCORD_WEBHOOK }}
+          status: failure
+          title: "Build failed"
+          description: |
+            Branch: `${{ github.ref_name }}`
+            Author: ${{ github.actor }}
+            Commit: [${{ github.event.pull_request.head.sha || github.sha }}](${{ github.server_url }}/${{ github.repository }}/commit/${{ github.event.pull_request.head.sha || github.sha }})
+            Run: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+
+  notify_success:
+    needs: deploy
+    runs-on: ubuntu-latest
+    steps:
+      - name: Notify Discord on successful deploy
+        uses: sarisia/actions-status-discord@v1
+        with:
+          webhook: ${{ secrets.DISCORD_WEBHOOK }}
+          status: success
+          title: "New version deployed"
+          nodetail: true
+          description: |
+            The app was deployed to production.
+            Run: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
