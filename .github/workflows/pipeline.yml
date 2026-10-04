@@ -62,3 +62,10 @@ jobs:
         run: npm run build:ui
       - name: Check build output exists
         run: test -f frontend/dist/index.html
+  deploy:
+    needs: [lint, lint_ui, test, build]
+    if: ${{ github.event_name == 'push' && !contains(join(github.event.commits.*.message, ' '), '#skip') }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger Render deployment
+        run: curl --fail --silent --show-error -X POST "${{ secrets.RENDER_DEPLOY_HOOK }}"
