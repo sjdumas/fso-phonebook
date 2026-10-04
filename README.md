@@ -1,10 +1,8 @@
 # Full Stack Open Phonebook
 
-This repository contains my full-stack phonebook application for exercise 21, **“Your own pipeline,”** in the CI/CD section of the University of Helsinki’s [Full Stack Open](https://fullstackopen.com/en/) course.
+This repository contains the full-stack phonebook application for exercise 21, **“Your own pipeline,”** in the CI/CD section of the University of Helsinki’s [Full Stack Open](https://fullstackopen.com/en/) course.
 
-The exercise is to build a CI/CD pipeline for an application. This repository brings the phonebook frontend and backend together: the backend is at the repository root, and the React frontend is in `frontend/`.
-
-This is the companion application repository for the exercise; link to it from the repository submitted to the course submission system.
+The exercise involves building a CI/CD pipeline for an application. This repository brings the phonebook frontend and backend together: the backend is at the repository root, and the React frontend is in `frontend/`.
 
 ## Application
 
@@ -16,21 +14,24 @@ The API supports creating, listing, updating, and deleting phonebook entries. Th
 
 The live application is available at [Phonebook](https://fso-phonebook-ci-cd.onrender.com/).
 
-## Repository layout
+## Repository Layout
 
 ```text
 .
-├── frontend/         # React application and Vite configuration
-├── models/           # Mongoose models
-├── requests/         # Example API requests
-├── index.js          # Express server and API routes
-├── mongo.js          # MongoDB command-line utility
-└── package.json      # Backend scripts and dependencies
+├── .github/workflows/   # CI/CD pipeline and periodic health check
+├── frontend/            # React application and Vite configuration
+├── models/              # Mongoose models
+├── requests/            # Example API requests
+├── tests/               # Backend tests
+├── app.js               # Express app and API routes
+├── index.js             # Starts the server
+├── mongo.js             # MongoDB command-line utility
+└── package.json         # Backend scripts and dependencies
 ```
 
-## Run locally
+## Run Locally
 
-You need Node.js and access to a MongoDB database.
+You need Node.js 20 or newer (the pipeline uses Node 24) and access to a MongoDB database.
 
 1. Install backend dependencies from the repository root:
 
@@ -68,22 +69,38 @@ You need Node.js and access to a MongoDB database.
 
    The backend listens on port `3001` by default. Vite serves the frontend and proxies `/api` requests to `http://localhost:3001`.
 
-## CI/CD exercise
+## CI/CD Pipeline
 
-The goal of this repository is to use the phonebook app to build and document a CI/CD pipeline: automated checks should run when changes are submitted, and successful changes can proceed through deployment.
+The pipeline is defined in `.github/workflows/pipeline.yml`.
 
-The available local checks are:
+**On pull requests to `main`:** four checks run in parallel: backend lint, frontend lint, backend tests, and the frontend build. Nothing is deployed.
+
+**On pushes to `main`** (merged pull requests): after the checks pass, the app is deployed to Render through a deploy hook, then a patch version tag is created.
+
+- Adding `#skip` to a commit message skips the deploy and the tagging.
+- `main` is protected by a ruleset that requires all four checks to pass before merging.
+- Discord notifications report failed builds and successful deployments.
+- A scheduled workflow (`.github/workflows/health_check.yml`) pings `/health` once a day.
+
+The workflows use these repository secrets: `RENDER_DEPLOY_HOOK` and `DISCORD_WEBHOOK`. Render's auto-deploy is turned off, so only the pipeline can deploy.
+
+Here are some local checks, from the repository root:
 
 ```bash
-# From the repository root
-npm run lint
-
-# From frontend/
-npm run lint
-npm run build
+npm run lint        # backend lint
+npm run lint:ui     # frontend lint
+npm test            # backend tests (no database needed)
+npm run build:ui    # frontend production build
 ```
 
-There is currently no workflow configuration in this repository, so automated CI/CD should not be assumed to be active. Add and maintain the pipeline configuration alongside the code, and update this section to describe its triggers, checks, and deployment process once configured.
+To run the production setup locally, build the frontend and let the backend serve it:
+
+```bash
+npm run build:ui
+npm start
+```
+
+The app is then served at `http://localhost:3001`.
 
 ## API
 
@@ -95,6 +112,7 @@ There is currently no workflow configuration in this repository, so automated CI
 | `PUT` | `/api/persons/:id` | Update an entry |
 | `DELETE` | `/api/persons/:id` | Delete an entry |
 | `GET` | `/info` | Show the entry count and current time |
+| `GET` | `/health` | Health check, returns `ok` |
 
 Create and update requests use JSON with a `name` and `number`, for example:
 
