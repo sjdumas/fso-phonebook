@@ -13,7 +13,7 @@
 },
   "repository": {
     "type": "git",
-    "url": "https://github.com/sjdumas/phonebook-backend.git"
+    "url": "https://github.com/sjdumas/fso-phonebook.git"
   },
   "author": "S.J. Dumas",
   "license": "MIT",
