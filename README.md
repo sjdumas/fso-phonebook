@@ -25,13 +25,13 @@ The live application is available at [Phonebook](https://fso-phonebook-ci-cd.onr
 ├── tests/               # Backend tests
 ├── app.js               # Express app and API routes
 ├── index.js             # Starts the server
-├── mongo.js             # MongoDB command-line utility
+├── mongo.js             # Command-line script from an early exercise (see below)
 └── package.json         # Backend scripts and dependencies
 ```
 
 ## Run Locally
 
-You need Node.js 20 or newer (the pipeline uses Node 24) and access to a MongoDB database.
+You need Node.js 20.19 or newer (the pipeline uses Node 24) and access to a MongoDB database. Vite and ESLint do not support older versions.
 
 1. Install backend dependencies from the repository root:
 
@@ -47,6 +47,8 @@ You need Node.js 20 or newer (the pipeline uses Node 24) and access to a MongoDB
    ```
 
    Set `MONGODB_URI` to a connection string for a database you can access. Do not commit credentials or the `.env` file.
+
+   `models/person.js` makes Node use Google's DNS servers (`8.8.8.8` and `8.8.4.4`) to look up `mongodb+srv://` addresses, as a workaround for a local network problem. If your network blocks outside DNS servers, remove those lines.
 
 3. Install frontend dependencies:
 
@@ -77,10 +79,10 @@ The pipeline is defined in `.github/workflows/pipeline.yml`.
 
 **On pushes to `main`** (merged pull requests): after the checks pass, the app is deployed to Render through a deploy hook, then a patch version tag is created.
 
-- Adding `#skip` to a commit message skips the deploy and the tagging.
+- If any commit in a push has `#skip` in its message, the deploy and the tagging are skipped.
 - `main` is protected by a ruleset that requires all four checks to pass before merging.
 - Discord notifications report failed builds and successful deployments.
-- A scheduled workflow (`.github/workflows/health_check.yml`) pings `/health` once a day.
+- A scheduled workflow (`.github/workflows/health_check.yml`) checks the live app's `/health` endpoint every day at 06:00 UTC, retrying up to six times. It can also be run by hand from the **Actions** tab.
 
 The workflows use these repository secrets: `RENDER_DEPLOY_HOOK` and `DISCORD_WEBHOOK`. Render's auto-deploy is turned off, so only the pipeline can deploy.
 
@@ -123,4 +125,24 @@ Create and update requests use JSON with a `name` and `number`, for example:
 }
 ```
 
-Names are required and must be at least three characters. Phone numbers are required and must contain a two- or three-digit prefix, a hyphen, and digits; the complete number must be at least eight characters long.
+Names are required and must be at least three characters. Phone numbers are required and must contain a two- or three-digit prefix, a hyphen, and digits; the complete number must be at least eight characters long. For example, `040-1234567` is valid, but `040-123-4567` is not, because it has a second hyphen.
+
+### Responses and Errors
+
+| Status | When                                                                                  |
+| ------ | ------------------------------------------------------------------------------------- |
+| `200`  | Successful `GET`, `POST`, or `PUT`. `POST` returns the new entry with its `id`        |
+| `204`  | Successful `DELETE`. Deleting an id that does not exist also returns `204`            |
+| `400`  | Missing `name` or `number` (`content missing`), a validation error, or a malformed id |
+| `404`  | No entry with that id, or an unknown endpoint                                         |
+
+## mongo.js
+
+`mongo.js` is a script from an early exercise that reads and adds entries directly in the database:
+
+```bash
+node mongo.js <password>                  # list all entries
+node mongo.js <password> "Ada Lovelace" 040-1234567   # add an entry
+```
+
+It does not read `.env`. The connection string, including the cluster and database user, is written in the file, so it only works with that cluster.
